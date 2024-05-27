@@ -1,0 +1,38 @@
+#ROUTING STATIC#
+
+#R1 mikrotik
+eth 1 = 10.10.10.1/24 (mengarah ke router cisco port e0/0)
+eth 2 = 192.168.1.1/24 (mengarah ke vpcs client)
+
+##Menambahkan IP address
+ip address add address 10.10.10.1/24 interfaces=ether1
+ip address add address 192.168.1.1/24 interfaces=ether2
+
+#R2 Cisco
+ethernet 0/0 = 10.10.10.2/24 (mengarah ke router mikrotik port eth1)
+ethernet 0/1 = 192.168.2.1/24 (mengarah ke vpcs client)
+
+##Menambahkan IP address
+router> enable
+router# configure t
+router(config)# interface e0/0
+router(config-if)# no shutdown
+router(config-if)# ip address 10.10.10.2 255.255.255.0
+router(config-if)# exit
+router(config)# interface e0/1
+router(config-if)# no shutdown
+router(config-if)# ip address 192.168.2.1 255.255.255.0
+router(config-if)# exit
+router(config)#exit
+router#
+
+##Menambahkan IP route (Mikrotik)
+ip route add dst-address=192.168.2.0/24 gateway=10.10.10.2
+
+##Menambahkan IP route (Cisco)
+router> enable
+router# configure t
+router(config)# ip route 192.168.1.0 255.255.255.0 10.10.10.1
+router(config)# exit
+router#
+
